@@ -10,7 +10,8 @@ from api.models import db
 from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
-
+from flask import Flask
+from flask_jwt_extended import JWTManager
 # from models import Person
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
@@ -63,8 +64,19 @@ def serve_any_other_file(path):
         path = 'index.html'
     response = send_from_directory(static_file_dir, path)
     response.cache_control.max_age = 0  # avoid cache memory
-    return response
+    return response 
 
+def create_app():
+    app = Flask(__name__)
+
+    app.config['JWT_SECRET_KEY'] = 'tu_clave_secreta_aqui'
+    jwt = JWTManager(app)
+
+   
+    from src.api.routes import api
+    app.register_blueprint(api, url_prefix='/api')
+
+    return app
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
